@@ -7,9 +7,16 @@ Ruby event manager project
  - Ruby
  - VS Code
  - Git/Github
+ - ERB
+ - Google API Client Gem
 
 ## What I learned:
- - 
+ - How to access and use the Google Civic Info API
+ - How to read content from a CSV using File.read
+ - How to use ERB for templating
+ - Outputting templates to their own files using File.open in writing mode
+ - Better idea on the process of writing code and then refactoring to separate methods
+ 
  
 ## Still can improve:
  - 
