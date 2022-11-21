@@ -1,9 +1,25 @@
 require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
+require 'time'
 
 def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, '0')[0..4]
+end
+
+def clean_phone_number(phone_number)
+  phone_number = phone_number.scan(/\d/).join
+  if phone_number.length == 10
+    phone_number
+  elsif phone_number.length == 11 && phone_number[0] == '1'
+    phone_number[1..10]
+  else 
+    'Bad number'
+  end
+end
+
+def find_hour(reg_date)
+  Time.strptime(reg_date, '%m/%d/%y %k:%M').hour
 end
 
 def legislators_by_zipcode(zip)
@@ -42,13 +58,21 @@ contents = CSV.open(
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 
+
+reg_hours = []
+
 contents.each do |row|
   id = row[0]
   name = row[:first_name]
   zipcode = clean_zipcode(row[:zipcode])
   legislators = legislators_by_zipcode(row[:zipcode])
+  phone_number = clean_phone_number(row[:homephone])
+
+  reg_hours.push(find_hour(row[:regdate]))
 
   form_letter = erb_template.result(binding)
 
   save_thank_you_letter(id, form_letter)
 end
+
+puts "Peak registration hours: #{Hash[reg_hours.tally.sort_by{|key, value| value}.reverse]}"
