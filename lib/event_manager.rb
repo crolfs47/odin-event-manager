@@ -2,6 +2,7 @@ require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
 require 'time'
+require 'date'
 
 def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, '0')[0..4]
@@ -20,6 +21,10 @@ end
 
 def find_hour(reg_date)
   Time.strptime(reg_date, '%m/%d/%y %k:%M').hour
+end
+
+def find_day(reg_date)
+  Time.strptime(reg_date, '%m/%d/%y %k:%M').wday
 end
 
 def legislators_by_zipcode(zip)
@@ -60,6 +65,7 @@ erb_template = ERB.new template_letter
 
 
 reg_hours = []
+reg_days = []
 
 contents.each do |row|
   id = row[0]
@@ -69,10 +75,21 @@ contents.each do |row|
   phone_number = clean_phone_number(row[:homephone])
 
   reg_hours.push(find_hour(row[:regdate]))
+  reg_days.push(find_day(row[:regdate]))
 
   form_letter = erb_template.result(binding)
 
   save_thank_you_letter(id, form_letter)
 end
 
-puts "Peak registration hours: #{Hash[reg_hours.tally.sort_by{|key, value| value}.reverse]}"
+reg_hours_tally = Hash[reg_hours.tally.sort_by{|key, value| value}.reverse]
+puts "Peak Registration Hours"
+reg_hours_tally.each do |key, value|
+  puts "Hour: #{key}, # of Registrants: #{value}"
+end
+
+reg_days_tally = Hash[reg_days.tally.sort_by{|key, value| value}.reverse]
+puts "Peak Registration Days"
+reg_days_tally.each do |key, value|
+  puts "Day: #{Date::DAYNAMES[key]}, # of Registrants: #{value}"
+end
