@@ -19,13 +19,7 @@ def clean_phone_number(phone_number)
   end
 end
 
-def find_hour(reg_date)
-  Time.strptime(reg_date, '%m/%d/%y %k:%M').hour
-end
 
-def find_day(reg_date)
-  Time.strptime(reg_date, '%m/%d/%y %k:%M').wday
-end
 
 def legislators_by_zipcode(zip)
   civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
@@ -52,6 +46,25 @@ def save_thank_you_letter(id, form_letter)
   end
 end
 
+def find_hour(reg_date)
+  Time.strptime(reg_date, '%m/%d/%y %k:%M').hour
+end
+
+def find_day(reg_date)
+  Time.strptime(reg_date, '%m/%d/%y %k:%M').wday
+end
+
+def tally_amounts(array, type)
+  tally_hash = Hash[array.tally.sort_by{|key, value| value}.reverse]
+  tally_hash.each do |key, value|
+    if type == 'day'
+      puts "#{type.capitalize}: #{Date::DAYNAMES[key]}, # of Registrants: #{value}"
+    else
+      puts "#{type.capitalize}: #{key}, # of Registrants: #{value}"
+    end
+  end
+end
+
 puts 'EventManager initialized.'
 
 contents = CSV.open(
@@ -62,7 +75,6 @@ contents = CSV.open(
 
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
-
 
 reg_hours = []
 reg_days = []
@@ -82,14 +94,21 @@ contents.each do |row|
   save_thank_you_letter(id, form_letter)
 end
 
-reg_hours_tally = Hash[reg_hours.tally.sort_by{|key, value| value}.reverse]
-puts "Peak Registration Hours"
-reg_hours_tally.each do |key, value|
-  puts "Hour: #{key}, # of Registrants: #{value}"
-end
+# reg_hours_tally = Hash[reg_hours.tally.sort_by{|key, value| value}.reverse]
+# puts "Peak Registration Hours"
+# reg_hours_tally.each do |key, value|
+#   puts "Hour: #{key}, # of Registrants: #{value}"
+# end
 
-reg_days_tally = Hash[reg_days.tally.sort_by{|key, value| value}.reverse]
+# reg_days_tally = Hash[reg_days.tally.sort_by{|key, value| value}.reverse]
+# puts "Peak Registration Days"
+# reg_days_tally.each do |key, value|
+#   puts "Day: #{Date::DAYNAMES[key]}, # of Registrants: #{value}"
+# end
+
+
+puts "Peak Registration Hours"
+tally_amounts(reg_hours, 'hour')
+
 puts "Peak Registration Days"
-reg_days_tally.each do |key, value|
-  puts "Day: #{Date::DAYNAMES[key]}, # of Registrants: #{value}"
-end
+tally_amounts(reg_days, 'day')
