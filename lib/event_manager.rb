@@ -19,8 +19,6 @@ def clean_phone_number(phone_number)
   end
 end
 
-
-
 def legislators_by_zipcode(zip)
   civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
   civic_info.key = 'AIzaSyClRzDqDh5MsXwnCWi0kOiiBivP6JsSyBw'
@@ -93,19 +91,6 @@ contents.each do |row|
 
   save_thank_you_letter(id, form_letter)
 end
-
-# reg_hours_tally = Hash[reg_hours.tally.sort_by{|key, value| value}.reverse]
-# puts "Peak Registration Hours"
-# reg_hours_tally.each do |key, value|
-#   puts "Hour: #{key}, # of Registrants: #{value}"
-# end
-
-# reg_days_tally = Hash[reg_days.tally.sort_by{|key, value| value}.reverse]
-# puts "Peak Registration Days"
-# reg_days_tally.each do |key, value|
-#   puts "Day: #{Date::DAYNAMES[key]}, # of Registrants: #{value}"
-# end
-
 
 puts "Peak Registration Hours"
 tally_amounts(reg_hours, 'hour')
